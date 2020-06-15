@@ -1,7 +1,7 @@
-import React from "react";
-import ReactDOM from "react-dom";
+import React from 'react';
+import ReactDOM from 'react-dom';
 
-export const getOnDemandLazySlides = spec => {
+export const getOnDemandLazySlides = (spec) => {
   let onDemandSlides = [];
   let startIndex = lazyStartIndex(spec);
   let endIndex = lazyEndIndex(spec);
@@ -14,7 +14,7 @@ export const getOnDemandLazySlides = spec => {
 };
 
 // return list of slides that need to be present
-export const getRequiredLazySlides = spec => {
+export const getRequiredLazySlides = (spec) => {
   let requiredSlides = [];
   let startIndex = lazyStartIndex(spec);
   let endIndex = lazyEndIndex(spec);
@@ -25,15 +25,16 @@ export const getRequiredLazySlides = spec => {
 };
 
 // startIndex that needs to be present
-export const lazyStartIndex = spec =>
+export const lazyStartIndex = (spec) =>
   spec.currentSlide - lazySlidesOnLeft(spec);
-export const lazyEndIndex = spec => spec.currentSlide + lazySlidesOnRight(spec);
-export const lazySlidesOnLeft = spec =>
+export const lazyEndIndex = (spec) =>
+  spec.currentSlide + lazySlidesOnRight(spec);
+export const lazySlidesOnLeft = (spec) =>
   spec.centerMode
     ? Math.floor(spec.slidesToShow / 2) +
       (parseInt(spec.centerPadding) > 0 ? 1 : 0)
     : 0;
-export const lazySlidesOnRight = spec =>
+export const lazySlidesOnRight = (spec) =>
   spec.centerMode
     ? Math.floor((spec.slidesToShow - 1) / 2) +
       1 +
@@ -41,8 +42,8 @@ export const lazySlidesOnRight = spec =>
     : spec.slidesToShow;
 
 // get width of an element
-export const getWidth = elem => (elem && elem.offsetWidth) || 0;
-export const getHeight = elem => (elem && elem.offsetHeight) || 0;
+export const getWidth = (elem) => (elem && elem.offsetWidth) || 0;
+export const getHeight = (elem) => (elem && elem.offsetHeight) || 0;
 export const getSwipeDirection = (touchObject, verticalSwiping = false) => {
   var xDist, yDist, r, swipeAngle;
   xDist = touchObject.startX - touchObject.curX;
@@ -56,24 +57,24 @@ export const getSwipeDirection = (touchObject, verticalSwiping = false) => {
     (swipeAngle <= 45 && swipeAngle >= 0) ||
     (swipeAngle <= 360 && swipeAngle >= 315)
   ) {
-    return "left";
+    return 'left';
   }
   if (swipeAngle >= 135 && swipeAngle <= 225) {
-    return "right";
+    return 'right';
   }
   if (verticalSwiping === true) {
     if (swipeAngle >= 35 && swipeAngle <= 135) {
-      return "up";
+      return 'up';
     } else {
-      return "down";
+      return 'down';
     }
   }
 
-  return "vertical";
+  return 'vertical';
 };
 
 // whether or not we can go next
-export const canGoNext = spec => {
+export const canGoNext = (spec) => {
   let canGo = true;
   if (!spec.infinite) {
     if (spec.centerMode && spec.currentSlide >= spec.slideCount - 1) {
@@ -83,20 +84,40 @@ export const canGoNext = spec => {
       spec.currentSlide >= spec.slideCount - spec.slidesToShow
     ) {
       canGo = false;
+    } else if (endOfSlide(spec)) {
+      canGo = false;
     }
   }
   return canGo;
 };
 
+export const endOfSlide = (spec) => {
+  var listWidth = spec.listWidth;
+  var trackElem = ReactDOM.findDOMNode(spec.trackRef);
+  var index = spec.checkIndex ? spec.checkIndex : spec.currentSlide;
+  if (!trackElem) {
+    return false;
+  }
+
+  var width = 0;
+  for (var i = index; i < spec.slideCount; i++) {
+    width += trackElem.children[i].offsetWidth;
+  }
+  if (width <= listWidth) {
+    return true;
+  }
+  return false;
+};
+
 // given an object and a list of keys, return new object with given keys
 export const extractObject = (spec, keys) => {
   let newObject = {};
-  keys.forEach(key => (newObject[key] = spec[key]));
+  keys.forEach((key) => (newObject[key] = spec[key]));
   return newObject;
 };
 
 // get initialized state
-export const initializedState = spec => {
+export const initializedState = (spec) => {
   // spec also contains listRef, trackRef
   let slideCount = React.Children.count(spec.children);
   let listWidth = Math.ceil(getWidth(ReactDOM.findDOMNode(spec.listRef)));
@@ -105,8 +126,8 @@ export const initializedState = spec => {
   if (!spec.vertical) {
     let centerPaddingAdj = spec.centerMode && parseInt(spec.centerPadding) * 2;
     if (
-      typeof spec.centerPadding === "string" &&
-      spec.centerPadding.slice(-1) === "%"
+      typeof spec.centerPadding === 'string' &&
+      spec.centerPadding.slice(-1) === '%'
     ) {
       centerPaddingAdj *= listWidth / 100;
     }
@@ -126,7 +147,11 @@ export const initializedState = spec => {
     currentSlide = slideCount - 1 - spec.initialSlide;
   }
   let lazyLoadedList = spec.lazyLoadedList || [];
-  let slidesToLoad = getOnDemandLazySlides({ ...spec, currentSlide, lazyLoadedList });
+  let slidesToLoad = getOnDemandLazySlides({
+    ...spec,
+    currentSlide,
+    lazyLoadedList,
+  });
   lazyLoadedList.concat(slidesToLoad);
 
   let state = {
@@ -137,17 +162,17 @@ export const initializedState = spec => {
     currentSlide,
     slideHeight,
     listHeight,
-    lazyLoadedList
+    lazyLoadedList,
   };
 
   if (spec.autoplaying === null && spec.autoplay) {
-    state["autoplaying"] = "playing";
+    state['autoplaying'] = 'playing';
   }
 
   return state;
 };
 
-export const slideHandler = spec => {
+export const slideHandler = (spec) => {
   const {
     waitForAnimate,
     animating,
@@ -161,7 +186,7 @@ export const slideHandler = spec => {
     centerMode,
     slidesToScroll,
     slidesToShow,
-    useCSS
+    useCSS,
   } = spec;
   if (waitForAnimate && animating) return {};
   let animationSlide = index,
@@ -183,7 +208,7 @@ export const slideHandler = spec => {
     state = {
       animating: true,
       currentSlide: animationSlide,
-      lazyLoadedList
+      lazyLoadedList,
     };
     nextState = { animating: false };
   } else {
@@ -217,20 +242,20 @@ export const slideHandler = spec => {
       state = {
         currentSlide: finalSlide,
         trackStyle: getTrackCSS({ ...spec, left: finalLeft }),
-        lazyLoadedList
+        lazyLoadedList,
       };
     } else {
       state = {
         animating: true,
         currentSlide: finalSlide,
         trackStyle: getTrackAnimateCSS({ ...spec, left: animationLeft }),
-        lazyLoadedList
+        lazyLoadedList,
       };
       nextState = {
         animating: false,
         currentSlide: finalSlide,
         trackStyle: getTrackCSS({ ...spec, left: finalLeft }),
-        swipeLeft: null
+        swipeLeft: null,
       };
     }
   }
@@ -245,12 +270,12 @@ export const changeSlide = (spec, options) => {
     slideCount,
     currentSlide,
     lazyLoad,
-    infinite
+    infinite,
   } = spec;
   unevenOffset = slideCount % slidesToScroll !== 0;
   indexOffset = unevenOffset ? 0 : (slideCount - currentSlide) % slidesToScroll;
 
-  if (options.message === "previous") {
+  if (options.message === 'previous') {
     slideOffset =
       indexOffset === 0 ? slidesToScroll : slidesToShow - indexOffset;
     targetSlide = currentSlide - slideOffset;
@@ -258,20 +283,20 @@ export const changeSlide = (spec, options) => {
       previousInt = currentSlide - slideOffset;
       targetSlide = previousInt === -1 ? slideCount - 1 : previousInt;
     }
-  } else if (options.message === "next") {
+  } else if (options.message === 'next') {
     slideOffset = indexOffset === 0 ? slidesToScroll : indexOffset;
     targetSlide = currentSlide + slideOffset;
     if (lazyLoad && !infinite) {
       targetSlide =
         ((currentSlide + slidesToScroll) % slideCount) + indexOffset;
     }
-  } else if (options.message === "dots") {
+  } else if (options.message === 'dots') {
     // Click on dots
     targetSlide = options.index * options.slidesToScroll;
     if (targetSlide === options.currentSlide) {
       return null;
     }
-  } else if (options.message === "children") {
+  } else if (options.message === 'children') {
     // Click on the slides
     targetSlide = options.index;
     if (targetSlide === options.currentSlide) {
@@ -279,13 +304,13 @@ export const changeSlide = (spec, options) => {
     }
     if (infinite) {
       let direction = siblingDirection({ ...spec, targetSlide });
-      if (targetSlide > options.currentSlide && direction === "left") {
+      if (targetSlide > options.currentSlide && direction === 'left') {
         targetSlide = targetSlide - slideCount;
-      } else if (targetSlide < options.currentSlide && direction === "right") {
+      } else if (targetSlide < options.currentSlide && direction === 'right') {
         targetSlide = targetSlide + slideCount;
       }
     }
-  } else if (options.message === "index") {
+  } else if (options.message === 'index') {
     targetSlide = Number(options.index);
     if (targetSlide === options.currentSlide) {
       return null;
@@ -294,24 +319,24 @@ export const changeSlide = (spec, options) => {
   return targetSlide;
 };
 export const keyHandler = (e, accessibility, rtl) => {
-  if (e.target.tagName.match("TEXTAREA|INPUT|SELECT") || !accessibility)
-    return "";
-  if (e.keyCode === 37) return rtl ? "next" : "previous";
-  if (e.keyCode === 39) return rtl ? "previous" : "next";
-  return "";
+  if (e.target.tagName.match('TEXTAREA|INPUT|SELECT') || !accessibility)
+    return '';
+  if (e.keyCode === 37) return rtl ? 'next' : 'previous';
+  if (e.keyCode === 39) return rtl ? 'previous' : 'next';
+  return '';
 };
 
 export const swipeStart = (e, swipe, draggable) => {
-  e.target.tagName === "IMG" && e.preventDefault();
-  if (!swipe || (!draggable && e.type.indexOf("mouse") !== -1)) return "";
+  e.target.tagName === 'IMG' && e.preventDefault();
+  if (!swipe || (!draggable && e.type.indexOf('mouse') !== -1)) return '';
   return {
     dragging: true,
     touchObject: {
       startX: e.touches ? e.touches[0].pageX : e.clientX,
       startY: e.touches ? e.touches[0].pageY : e.clientY,
       curX: e.touches ? e.touches[0].pageX : e.clientX,
-      curY: e.touches ? e.touches[0].pageY : e.clientY
-    }
+      curY: e.touches ? e.touches[0].pageY : e.clientY,
+    },
   };
 };
 export const swipeMove = (e, spec) => {
@@ -335,7 +360,7 @@ export const swipeMove = (e, spec) => {
     touchObject,
     swipeEvent,
     listHeight,
-    listWidth
+    listWidth,
   } = spec;
   if (scrolling) return;
   if (animating) return e.preventDefault();
@@ -365,20 +390,20 @@ export const swipeMove = (e, spec) => {
   let touchSwipeLength = touchObject.swipeLength;
   if (!infinite) {
     if (
-      (currentSlide === 0 && swipeDirection === "right") ||
-      (currentSlide + 1 >= dotCount && swipeDirection === "left") ||
-      (!canGoNext(spec) && swipeDirection === "left")
+      (currentSlide === 0 && swipeDirection === 'right') ||
+      (currentSlide + 1 >= dotCount && swipeDirection === 'left') ||
+      (!canGoNext(spec) && swipeDirection === 'left')
     ) {
       touchSwipeLength = touchObject.swipeLength * edgeFriction;
       if (edgeDragged === false && onEdge) {
         onEdge(swipeDirection);
-        state["edgeDragged"] = true;
+        state['edgeDragged'] = true;
       }
     }
   }
   if (!swiped && swipeEvent) {
     swipeEvent(swipeDirection);
-    state["swiped"] = true;
+    state['swiped'] = true;
   }
   if (!vertical) {
     if (!rtl) {
@@ -397,7 +422,7 @@ export const swipeMove = (e, spec) => {
     ...state,
     touchObject,
     swipeLeft,
-    trackStyle: getTrackCSS({ ...spec, left: swipeLeft })
+    trackStyle: getTrackCSS({ ...spec, left: swipeLeft }),
   };
   if (
     Math.abs(touchObject.curX - touchObject.startX) <
@@ -406,7 +431,7 @@ export const swipeMove = (e, spec) => {
     return state;
   }
   if (touchObject.swipeLength > 10) {
-    state["swiping"] = true;
+    state['swiping'] = true;
     e.preventDefault();
   }
   return state;
@@ -423,7 +448,7 @@ export const swipeEnd = (e, spec) => {
     currentSlide,
     swipeToSlide,
     scrolling,
-    onSwipe
+    onSwipe,
   } = spec;
   if (!dragging) {
     if (swipe) e.preventDefault();
@@ -441,7 +466,7 @@ export const swipeEnd = (e, spec) => {
     swiping: false,
     swiped: false,
     swipeLeft: null,
-    touchObject: {}
+    touchObject: {},
   };
   if (scrolling) {
     return state;
@@ -456,30 +481,30 @@ export const swipeEnd = (e, spec) => {
     }
     let slideCount, newSlide;
     switch (swipeDirection) {
-      case "left":
-      case "up":
+      case 'left':
+      case 'up':
         newSlide = currentSlide + getSlideCount(spec);
         slideCount = swipeToSlide ? checkNavigable(spec, newSlide) : newSlide;
-        state["currentDirection"] = 0;
+        state['currentDirection'] = 0;
         break;
-      case "right":
-      case "down":
+      case 'right':
+      case 'down':
         newSlide = currentSlide - getSlideCount(spec);
         slideCount = swipeToSlide ? checkNavigable(spec, newSlide) : newSlide;
-        state["currentDirection"] = 1;
+        state['currentDirection'] = 1;
         break;
       default:
         slideCount = currentSlide;
     }
-    state["triggerSlideHandler"] = slideCount;
+    state['triggerSlideHandler'] = slideCount;
   } else {
     // Adjust the track back to it's original position.
     let currentLeft = getTrackLeft(spec);
-    state["trackStyle"] = getTrackAnimateCSS({ ...spec, left: currentLeft });
+    state['trackStyle'] = getTrackAnimateCSS({ ...spec, left: currentLeft });
   }
   return state;
 };
-export const getNavigableIndexes = spec => {
+export const getNavigableIndexes = (spec) => {
   let max = spec.infinite ? spec.slideCount * 2 : spec.slideCount;
   let breakpoint = spec.infinite ? spec.slidesToShow * -1 : 0;
   let counter = spec.infinite ? spec.slidesToShow * -1 : 0;
@@ -507,15 +532,15 @@ export const checkNavigable = (spec, index) => {
   }
   return index;
 };
-export const getSlideCount = spec => {
+export const getSlideCount = (spec) => {
   const centerOffset = spec.centerMode
     ? spec.slideWidth * Math.floor(spec.slidesToShow / 2)
     : 0;
   if (spec.swipeToSlide) {
     let swipedSlide;
     const slickList = ReactDOM.findDOMNode(spec.listRef);
-    const slides = slickList.querySelectorAll(".slick-slide");
-    Array.from(slides).every(slide => {
+    const slides = slickList.querySelectorAll('.slick-slide');
+    Array.from(slides).every((slide) => {
       if (!spec.vertical) {
         if (
           slide.offsetLeft - centerOffset + getWidth(slide) / 2 >
@@ -552,15 +577,15 @@ export const getSlideCount = spec => {
 export const checkSpecKeys = (spec, keysArray) =>
   keysArray.reduce((value, key) => value && spec.hasOwnProperty(key), true)
     ? null
-    : console.error("Keys Missing:", spec);
+    : console.error('Keys Missing:', spec);
 
-export const getTrackCSS = spec => {
+export const getTrackCSS = (spec) => {
   checkSpecKeys(spec, [
-    "left",
-    "variableWidth",
-    "slideCount",
-    "slidesToShow",
-    "slideWidth"
+    'left',
+    'variableWidth',
+    'slideCount',
+    'slidesToShow',
+    'slideWidth',
   ]);
   let trackWidth, trackHeight;
   const trackChildren = spec.slideCount + 2 * spec.slidesToShow;
@@ -571,30 +596,30 @@ export const getTrackCSS = spec => {
   }
   let style = {
     opacity: 1,
-    transition: "",
-    WebkitTransition: ""
+    transition: '',
+    WebkitTransition: '',
   };
   if (spec.useTransform) {
     let WebkitTransform = !spec.vertical
-      ? "translate3d(" + spec.left + "px, 0px, 0px)"
-      : "translate3d(0px, " + spec.left + "px, 0px)";
+      ? 'translate3d(' + spec.left + 'px, 0px, 0px)'
+      : 'translate3d(0px, ' + spec.left + 'px, 0px)';
     let transform = !spec.vertical
-      ? "translate3d(" + spec.left + "px, 0px, 0px)"
-      : "translate3d(0px, " + spec.left + "px, 0px)";
+      ? 'translate3d(' + spec.left + 'px, 0px, 0px)'
+      : 'translate3d(0px, ' + spec.left + 'px, 0px)';
     let msTransform = !spec.vertical
-      ? "translateX(" + spec.left + "px)"
-      : "translateY(" + spec.left + "px)";
+      ? 'translateX(' + spec.left + 'px)'
+      : 'translateY(' + spec.left + 'px)';
     style = {
       ...style,
       WebkitTransform,
       transform,
-      msTransform
+      msTransform,
     };
   } else {
     if (spec.vertical) {
-      style["top"] = spec.left;
+      style['top'] = spec.left;
     } else {
-      style["left"] = spec.left;
+      style['left'] = spec.left;
     }
   }
   if (spec.fade) style = { opacity: 1 };
@@ -604,56 +629,56 @@ export const getTrackCSS = spec => {
   // Fallback for IE8
   if (window && !window.addEventListener && window.attachEvent) {
     if (!spec.vertical) {
-      style.marginLeft = spec.left + "px";
+      style.marginLeft = spec.left + 'px';
     } else {
-      style.marginTop = spec.left + "px";
+      style.marginTop = spec.left + 'px';
     }
   }
 
   return style;
 };
-export const getTrackAnimateCSS = spec => {
+export const getTrackAnimateCSS = (spec) => {
   checkSpecKeys(spec, [
-    "left",
-    "variableWidth",
-    "slideCount",
-    "slidesToShow",
-    "slideWidth",
-    "speed",
-    "cssEase"
+    'left',
+    'variableWidth',
+    'slideCount',
+    'slidesToShow',
+    'slideWidth',
+    'speed',
+    'cssEase',
   ]);
   let style = getTrackCSS(spec);
   // useCSS is true by default so it can be undefined
   if (spec.useTransform) {
     style.WebkitTransition =
-      "-webkit-transform " + spec.speed + "ms " + spec.cssEase;
-    style.transition = "transform " + spec.speed + "ms " + spec.cssEase;
+      '-webkit-transform ' + spec.speed + 'ms ' + spec.cssEase;
+    style.transition = 'transform ' + spec.speed + 'ms ' + spec.cssEase;
   } else {
     if (spec.vertical) {
-      style.transition = "top " + spec.speed + "ms " + spec.cssEase;
+      style.transition = 'top ' + spec.speed + 'ms ' + spec.cssEase;
     } else {
-      style.transition = "left " + spec.speed + "ms " + spec.cssEase;
+      style.transition = 'left ' + spec.speed + 'ms ' + spec.cssEase;
     }
   }
   return style;
 };
-export const getTrackLeft = spec => {
+export const getTrackLeft = (spec) => {
   if (spec.unslick) {
     return 0;
   }
 
   checkSpecKeys(spec, [
-    "slideIndex",
-    "trackRef",
-    "infinite",
-    "centerMode",
-    "slideCount",
-    "slidesToShow",
-    "slidesToScroll",
-    "slideWidth",
-    "listWidth",
-    "variableWidth",
-    "slideHeight"
+    'slideIndex',
+    'trackRef',
+    'infinite',
+    'centerMode',
+    'slideCount',
+    'slidesToShow',
+    'slidesToScroll',
+    'slideWidth',
+    'listWidth',
+    'variableWidth',
+    'slideHeight',
   ]);
 
   const {
@@ -669,7 +694,7 @@ export const getTrackLeft = spec => {
     variableWidth,
     slideHeight,
     fade,
-    vertical
+    vertical,
   } = spec;
 
   var slideOffset = 0;
@@ -743,7 +768,7 @@ export const getTrackLeft = spec => {
   return targetLeft;
 };
 
-export const getPreClones = spec => {
+export const getPreClones = (spec) => {
   if (spec.unslick || !spec.infinite) {
     return 0;
   }
@@ -753,28 +778,28 @@ export const getPreClones = spec => {
   return spec.slidesToShow + (spec.centerMode ? 1 : 0);
 };
 
-export const getPostClones = spec => {
+export const getPostClones = (spec) => {
   if (spec.unslick || !spec.infinite) {
     return 0;
   }
   return spec.slideCount;
 };
 
-export const getTotalSlides = spec =>
+export const getTotalSlides = (spec) =>
   spec.slideCount === 1
     ? 1
     : getPreClones(spec) + spec.slideCount + getPostClones(spec);
-export const siblingDirection = spec => {
+export const siblingDirection = (spec) => {
   if (spec.targetSlide > spec.currentSlide) {
     if (spec.targetSlide > spec.currentSlide + slidesOnRight(spec)) {
-      return "left";
+      return 'left';
     }
-    return "right";
+    return 'right';
   } else {
     if (spec.targetSlide < spec.currentSlide - slidesOnLeft(spec)) {
-      return "right";
+      return 'right';
     }
-    return "left";
+    return 'left';
   }
 };
 
@@ -782,7 +807,7 @@ export const slidesOnRight = ({
   slidesToShow,
   centerMode,
   rtl,
-  centerPadding
+  centerPadding,
 }) => {
   // returns no of slides on the right of active slide
   if (centerMode) {
@@ -801,7 +826,7 @@ export const slidesOnLeft = ({
   slidesToShow,
   centerMode,
   rtl,
-  centerPadding
+  centerPadding,
 }) => {
   // returns no of slides on the left of active slide
   if (centerMode) {
@@ -818,7 +843,7 @@ export const slidesOnLeft = ({
 
 export const canUseDOM = () =>
   !!(
-    typeof window !== "undefined" &&
+    typeof window !== 'undefined' &&
     window.document &&
     window.document.createElement
   );
