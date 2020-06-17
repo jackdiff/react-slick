@@ -1,6 +1,6 @@
 const React = require("react");
 const fs = require("fs");
-const babel = require("babel-core");
+const babel = require("@babel-core");
 const ReactDOMServer = require("react-dom/server");
 
 let configsObject;

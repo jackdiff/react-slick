@@ -2,7 +2,7 @@
 
 import React from "react";
 import classnames from "classnames";
-import { canGoNext } from "./utils/innerSliderUtils";
+import { canGoNext, endOfSlide } from "./utils/innerSliderUtils";
 
 export class PrevArrow extends React.PureComponent {
   clickHandler(options, e) {
@@ -66,7 +66,7 @@ export class NextArrow extends React.PureComponent {
     let nextClasses = { "slick-arrow": true, "slick-next": true };
     let nextHandler = this.clickHandler.bind(this, { message: "next" });
 
-    if (!canGoNext(this.props)) {
+    if (this.props.renderArrow === false || !endOfSlide(this.props)) {
       nextClasses["slick-disabled"] = true;
       nextHandler = null;
     }
