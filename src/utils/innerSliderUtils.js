@@ -1,6 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom";
 
+let RDOM = ReactDOM;
+if (!RDOM) {
+  RDOM = global?.ReactDOM;
+}
 export const getOnDemandLazySlides = spec => {
   let onDemandSlides = [];
   let startIndex = lazyStartIndex(spec);
@@ -93,9 +97,9 @@ export const canGoNext = spec => {
 export const endOfSlide = spec => {
   let listWidth = spec.listWidth;
   if (listWidth === undefined) {
-    listWidth = Math.ceil(getWidth(ReactDOM.findDOMNode(spec.listRef)));
+    listWidth = Math.ceil(getWidth(RDOM.findDOMNode(spec.listRef)));
   }
-  var trackElem = ReactDOM.findDOMNode(spec.trackRef);
+  var trackElem = RDOM.findDOMNode(spec.trackRef);
   var index = spec.checkIndex ? spec.checkIndex : spec.currentSlide;
   if (!trackElem) {
     return false;
@@ -122,8 +126,8 @@ export const extractObject = (spec, keys) => {
 export const initializedState = spec => {
   // spec also contains listRef, trackRef
   let slideCount = React.Children.count(spec.children);
-  let listWidth = Math.ceil(getWidth(ReactDOM.findDOMNode(spec.listRef)));
-  let trackWidth = Math.ceil(getWidth(ReactDOM.findDOMNode(spec.trackRef)));
+  let listWidth = Math.ceil(getWidth(RDOM.findDOMNode(spec.listRef)));
+  let trackWidth = Math.ceil(getWidth(RDOM.findDOMNode(spec.trackRef)));
   let slideWidth;
   if (!spec.vertical) {
     let centerPaddingAdj = spec.centerMode && parseInt(spec.centerPadding) * 2;
@@ -138,10 +142,8 @@ export const initializedState = spec => {
     slideWidth = listWidth;
   }
   let slideHeight =
-    ReactDOM.findDOMNode(spec.listRef) &&
-    getHeight(
-      ReactDOM.findDOMNode(spec.listRef).querySelector('[data-index="0"]')
-    );
+    RDOM.findDOMNode(spec.listRef) &&
+    getHeight(RDOM.findDOMNode(spec.listRef).querySelector('[data-index="0"]'));
   let listHeight = slideHeight * spec.slidesToShow;
   let currentSlide =
     spec.currentSlide === undefined ? spec.initialSlide : spec.currentSlide;
@@ -486,7 +488,7 @@ export const swipeEnd = (e, spec) => {
       case "left":
       case "up":
         newSlide = currentSlide + getSlideCount(spec);
-        slideCount = swipeToSlide ? checkNavigable(spec, newSlide) : newSlide;
+        slideCount = newSlide; //swipeToSlide ? checkNavigable(spec, newSlide) : newSlide;
         state["currentDirection"] = 0;
         break;
       case "right":
@@ -540,7 +542,7 @@ export const getSlideCount = spec => {
     : 0;
   if (spec.swipeToSlide) {
     let swipedSlide;
-    const slickList = ReactDOM.findDOMNode(spec.listRef);
+    const slickList = RDOM.findDOMNode(spec.listRef);
     const slides = slickList.querySelectorAll(".slick-slide");
     Array.from(slides).every(slide => {
       if (!spec.vertical) {
@@ -746,7 +748,7 @@ export const getTrackLeft = spec => {
 
   if (variableWidth === true) {
     var targetSlideIndex;
-    let trackElem = ReactDOM.findDOMNode(trackRef);
+    let trackElem = RDOM.findDOMNode(trackRef);
     targetSlideIndex = slideIndex + getPreClones(spec);
     targetSlide = trackElem && trackElem.childNodes[targetSlideIndex];
     targetLeft = targetSlide ? targetSlide.offsetLeft * -1 : 0;
