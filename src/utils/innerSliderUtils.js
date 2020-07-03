@@ -107,7 +107,9 @@ export const endOfSlide = spec => {
 
   var width = 0;
   for (var i = index; i < spec.slideCount; i++) {
-    width += trackElem.children[i].offsetWidth;
+    if (trackElem.children[i]) {
+      width += trackElem.children[i].offsetWidth;
+    }
   }
   if (width <= listWidth) {
     return true;
